@@ -4,6 +4,7 @@ const userSchema = new Schema({
 	name: String,
 	email: String,
 	password: String,
+	stripeCustomerId: String,
 });
 
 const Users = models.user || model('user', userSchema);

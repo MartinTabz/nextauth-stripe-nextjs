@@ -1,7 +1,7 @@
 export const pricingPlans = [
    {
       title: 'Basic',
-      price: 550,
+      cena: 550,
       currency: 'Kč',
       frequency: '/měsíc',
       description: 'Základní stránky',
@@ -11,10 +11,11 @@ export const pricingPlans = [
          'Shopify'
       ],
       mostPopular: false,
+      stripeplan: 'price_1MCOI4Ie6OfE8rNR3OClLkk1'
    },
    {
       title: 'Pro',
-      price: 800,
+      cena: 800,
       currency: 'Kč',
       frequency: '/měsíc',
       description: 'Všechny možné stránky',
@@ -26,10 +27,11 @@ export const pricingPlans = [
          'Undefeated'
       ],
       mostPopular: true,
+      stripeplan: 'price_1MCOIbIe6OfE8rNR2duYdF6J'
    },
    {
       title: 'Enterprise',
-      price: 990,
+      cena: 990,
       currency: 'Kč',
       frequency: '/měsíc',
       description: 'Všechny možné stránky a aplikace',
@@ -41,5 +43,6 @@ export const pricingPlans = [
          '+12 dalších'
       ],
       mostPopular: false,
+      stripeplan: 'price_1MCOJIIe6OfE8rNRpd2HTMwR'
    },
 ]

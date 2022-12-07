@@ -30,7 +30,7 @@ export default NextAuth({
 					throw new Error('Username or Password does not match');
 				}
 
-				return result;
+				return result
 			},
 		}),
 	],

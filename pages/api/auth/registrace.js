@@ -1,9 +1,12 @@
+import { loadStripe } from "@stripe/stripe-js";
 import { hash } from 'bcryptjs';
+import initStripe from 'stripe';
 import connectMongo from '../../../database/connection';
 import Users from '../../../models/Schema';
 
 export default async function handler(req, res) {
 	connectMongo().catch((error) => res.json({ error: 'Připojení Selhalo' }));
+	const stripe = initStripe(process.env.STRIPE_SECRET_KEY)
 
 	if (req.method === 'POST') {
 		if (!req.body) {
@@ -16,7 +19,11 @@ export default async function handler(req, res) {
 				.status(422)
 				.json({ message: 'User with this e-mail already exists' });
 		}
-		Users.create({ name, email, password: await hash(password, 12) }, function(err, data){
+		const customer = await stripe.customers.create({
+			email: req.body.email,
+			name: req.body.name,
+		})
+		await Users.create({ name: name, email: email, password: await hash(password, 12), stripeCustomerId: customer.id, }, function(err, data){
          if (err){
             return res.status(404).json({err});
          }
