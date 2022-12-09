@@ -30,12 +30,27 @@ export default NextAuth({
 					throw new Error('Username or Password does not match');
 				}
 
-				return result
+				return result;
 			},
 		}),
 	],
-	secret: "Ov/sEuExqNHLzTemACpmnLAe7yBLMaIe+BeI3iyXaeg=",
 	session: {
-		strategy: 'jwt',
+		jwt: true,
+	},
+	jwt: {
+		secret: 'Ov/sEuExqNHLzTemACpmnLAe7yBLMaIe+BeI3iyXaeg=',
+	},
+	callbacks: {
+		async jwt({token, user}) {
+			if(user) {
+				token.stripeCustomerId = user.stripeCustomerId
+			}
+			return token
+		},
+		async session({session, token}) {
+			session.user.stripeCustomerId = token.stripeCustomerId
+			return session
+		}
 	}
+
 });

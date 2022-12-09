@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { pricingPlans } from '../database/pricing';
 import { HiCheck } from 'react-icons/hi';
+import { loadStripe } from '@stripe/stripe-js';
 
 export default function Home() {
 	const { data: session } = useSession();
@@ -50,6 +51,22 @@ function Guest() {
 }
 
 function User({ session, handleSignOut }) {
+	
+	async function handleSubscribe(data){
+		const bodycontent = {
+			"customerId": "cus_MwN4nDsHKlwLpC",
+			"priceId": data,
+		}
+		const options = {
+			method: 'post',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(bodycontent)
+		};
+		const checkout = await fetch('/api/predplatit', options).then((res) => res.json());
+		const stripe = await loadStripe(process.env.STRIPE_PUBLISHABLE_KEY);
+		await stripe.redirectToCheckout({sessionId: checkout.id})
+	}
+
 	return (
 		<>
 			<Head>
@@ -90,7 +107,7 @@ function User({ session, handleSignOut }) {
 
 						<div className="mt-4 py-6 px-4 rounded-2xl bg-slate-50 -mx-4">
 							<p className="text-sm font-semibold text-slate-500 flex items-center">
-								<span className="text-4xl text-black mr-3">{plan.price}</span>
+								<span className="text-4xl text-black mr-3">{plan.cena}</span>
 								<span className="text-lg">{plan.currency}</span>
 								<span>{plan.frequency}</span>
 							</p>
@@ -104,7 +121,7 @@ function User({ session, handleSignOut }) {
 								</li>
 							))}
 						</ul>
-						<Link className='block text-white bg-blue-500 hover:bg-blue-600 mt-8 px-6 py-4 text-sm font-semibold leading-4 text-center rounded-lg shadow-md' href="/profil">Předplatit</Link>
+						<button onClick={() => handleSubscribe(plan.stripeplan)} className='block text-white bg-blue-500 hover:bg-blue-600 mt-8 px-6 py-4 text-sm font-semibold leading-4 text-center rounded-lg shadow-md'>Předplatit</button>
 					</div>
 				))}
 			</div>
