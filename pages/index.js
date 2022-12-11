@@ -57,11 +57,6 @@ function User({ session, handleSignOut }) {
 			customerId: session.user.stripeCustomerId,
 			priceId: data,
 		};
-		const options = {
-			method: 'post',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(body),
-		};
 		const url = '/api/create-checkout-session';
 		const res = await axios
 			.post(url, body, {

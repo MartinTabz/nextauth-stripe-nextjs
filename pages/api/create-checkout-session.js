@@ -1,10 +1,14 @@
 import initStripe from 'stripe';
-import {  NextResponse } from 'next/server'
 
 export default async function handler(req, res) {
 	const stripe = await initStripe(process.env.STRIPE_SECRET_KEY);
 
 	const { priceId, customerId } = req.body;
+
+   if(!customerId) {
+      return res.status(401).send("Unauthorized");
+   }
+
 
    const checkoutsession = await stripe.checkout.sessions.create({
       mode: 'subscription',
