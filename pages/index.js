@@ -1,10 +1,10 @@
+import axios from 'axios';
 import { getSession, signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import { pricingPlans } from '../database/pricing';
+import { useRouter } from 'next/router';
 import { HiCheck } from 'react-icons/hi';
-import { loadStripe } from '@stripe/stripe-js';
+import { pricingPlans } from '../database/pricing';
 
 export default function Home() {
 	const { data: session } = useSession();
@@ -51,22 +51,27 @@ function Guest() {
 }
 
 function User({ session, handleSignOut }) {
-	
-	async function handleSubscribe(data){
-		const bodycontent = {
-			"customerId": "cus_MwN4nDsHKlwLpC",
-			"priceId": data,
-		}
+	const router = useRouter();
+	async function handleSubscribe(data) {
+		const body = {
+			customerId: session.user.stripeCustomerId,
+			priceId: data,
+		};
 		const options = {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(bodycontent)
+			body: JSON.stringify(body),
 		};
-		const checkout = await fetch('/api/predplatit', options).then((res) => res.json());
-		const stripe = await loadStripe(process.env.STRIPE_PUBLISHABLE_KEY);
-		await stripe.redirectToCheckout({sessionId: checkout.id})
+		const url = '/api/create-checkout-session';
+		const res = await axios
+			.post(url, body, {
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json;charset=UTF-8',
+				},
+			});
+		router.push(res.data.id)
 	}
-
 	return (
 		<>
 			<Head>
@@ -90,14 +95,12 @@ function User({ session, handleSignOut }) {
 				{pricingPlans.map((plan) => (
 					<div
 						className={`flex flex-col border-2 shadow-lg p-8 bg-white rounded-2xl relative
-						${
-							plan.mostPopular
-								? 'border-blue-500'
-								: 'border-slate-200'
-						}`}
+						${plan.mostPopular ? 'border-blue-500' : 'border-slate-200'}`}
 						key={plan.title}
 					>
-						<h3 className="text-2xl text-blue-500 font-semibold leading-5">{plan.title}</h3>
+						<h3 className="text-2xl text-blue-500 font-semibold leading-5">
+							{plan.title}
+						</h3>
 						{plan.mostPopular && (
 							<p className="absolute -translate-y-1/2 top-0 bg-blue-500 text-white px-3 py-0.5 text-base font-semibold tracking-wide rounded-full shadow-md">
 								Oblíbené
@@ -113,15 +116,23 @@ function User({ session, handleSignOut }) {
 							</p>
 						</div>
 
-						<ul className='mt-6 space-y-3 flex-1'>
+						<ul className="mt-6 space-y-3 flex-1">
 							{plan.features.map((feature) => (
-								<li className='flex text-sm text-slate-700 leading-6' key={feature}>
-									<HiCheck className='text-blue-500 text-2xl' />
-									<span className='ml-3'>{feature}</span>
+								<li
+									className="flex text-sm text-slate-700 leading-6"
+									key={feature}
+								>
+									<HiCheck className="text-blue-500 text-2xl" />
+									<span className="ml-3">{feature}</span>
 								</li>
 							))}
 						</ul>
-						<button onClick={() => handleSubscribe(plan.stripeplan)} className='block text-white bg-blue-500 hover:bg-blue-600 mt-8 px-6 py-4 text-sm font-semibold leading-4 text-center rounded-lg shadow-md'>Předplatit</button>
+						<button
+							onClick={() => handleSubscribe(plan.stripeplan)}
+							className="block text-white bg-blue-500 hover:bg-blue-600 mt-8 px-6 py-4 text-sm font-semibold leading-4 text-center rounded-lg shadow-md"
+						>
+							Předplatit
+						</button>
 					</div>
 				))}
 			</div>
@@ -130,8 +141,13 @@ function User({ session, handleSignOut }) {
 				<h2 className="text-3xl font-extrabold text-black sm:text-5xl sm:leading-tight sm:tracking-tight">
 					Akce
 				</h2>
-				<div className='grid gap-3 lg:gap-12 lg:grid-cols-2 my-10 text-center'>
-					<Link className='transition text-lg sm:text-3xl py-3 rounded-2xl bg-blue-400 hover:bg-blue-500' href={"/profil"}>Profil</Link>
+				<div className="grid gap-3 lg:gap-12 lg:grid-cols-2 my-10 text-center">
+					<Link
+						className="transition text-lg sm:text-3xl py-3 rounded-2xl bg-blue-400 hover:bg-blue-500"
+						href={'/profil'}
+					>
+						Profil
+					</Link>
 					<button
 						onClick={handleSignOut}
 						className="transition text-lg sm:text-3xl py-3 rounded-2xl bg-slate-300 hover:bg-slate-400 "
