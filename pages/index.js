@@ -86,7 +86,7 @@ function User({ session, handleSignOut }) {
 				</p>
 			</div>
 
-			<div className="grid lg:grid-cols-3 gap-8 py-24 px-4 sm:px-6 lg:px-8 gap-12 max-w-7xl mx-auto">
+			<div className="grid lg:grid-cols-3 gap-8 py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 				{pricingPlans.map((plan) => (
 					<div
 						className={`flex flex-col border-2 shadow-lg p-8 bg-white rounded-2xl relative
