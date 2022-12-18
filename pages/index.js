@@ -51,6 +51,14 @@ function Guest() {
 }
 
 function User({ session, handleSignOut }) {
+	return(
+		<>
+			{session.user.subscribtionRole === "free" ? Subscribtions({session, handleSignOut}) : Content({session, handleSignOut}) }
+		</>
+	);
+}
+
+function Subscribtions({ session, handleSignOut }) {
 	const router = useRouter();
 	async function handleSubscribe(data) {
 		const body = {
@@ -58,14 +66,13 @@ function User({ session, handleSignOut }) {
 			priceId: data,
 		};
 		const url = '/api/create-checkout-session';
-		const res = await axios
-			.post(url, body, {
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json;charset=UTF-8',
-				},
-			});
-		router.push(res.data.id)
+		const res = await axios.post(url, body, {
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json;charset=UTF-8',
+			},
+		});
+		router.push(res.data.id);
 	}
 	return (
 		<>
@@ -90,7 +97,7 @@ function User({ session, handleSignOut }) {
 				{pricingPlans.map((plan) => (
 					<div
 						className={`flex flex-col border-2 shadow-lg p-8 bg-white rounded-2xl relative
-						${plan.mostPopular ? 'border-blue-500' : 'border-slate-200'}`}
+							${plan.mostPopular ? 'border-blue-500' : 'border-slate-200'}`}
 						key={plan.title}
 					>
 						<h3 className="text-2xl text-blue-500 font-semibold leading-5">
@@ -132,6 +139,33 @@ function User({ session, handleSignOut }) {
 				))}
 			</div>
 
+			<div className="mx-auto max-w-7xl bg-white px-4 pt-24 sm:px-6 lg:px8">
+				<h2 className="text-3xl font-extrabold text-black sm:text-5xl sm:leading-tight sm:tracking-tight">
+					Akce
+				</h2>
+				<div className="grid gap-3 lg:gap-12 lg:grid-cols-2 my-10 text-center">
+					<Link
+						className="transition text-lg sm:text-3xl py-3 rounded-2xl bg-blue-400 hover:bg-blue-500"
+						href={'/profil'}
+					>
+						Profil
+					</Link>
+					<button
+						onClick={handleSignOut}
+						className="transition text-lg sm:text-3xl py-3 rounded-2xl bg-slate-300 hover:bg-slate-400 "
+					>
+						Odhlásit
+					</button>
+				</div>
+			</div>
+		</>
+	);
+}
+
+function Content({ session, handleSignOut }) {
+	return (
+		<>
+			<h1 className='text-center mt-10 text-3xl'>Tady je nějaký zajímavý obsah</h1> 
 			<div className="mx-auto max-w-7xl bg-white px-4 pt-24 sm:px-6 lg:px8">
 				<h2 className="text-3xl font-extrabold text-black sm:text-5xl sm:leading-tight sm:tracking-tight">
 					Akce

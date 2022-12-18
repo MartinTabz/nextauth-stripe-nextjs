@@ -43,13 +43,15 @@ export default NextAuth({
 	callbacks: {
 		async jwt({token, user}) {
 			if(user) {
-				token.stripeCustomerId = user.stripeCustomerId
+				token.stripeCustomerId = user.stripeCustomerId;
+				token.subscribtionRole = user.subscribtionRole;
 			}
-			return token
+			return token;
 		},
 		async session({session, token}) {
-			session.user.stripeCustomerId = token.stripeCustomerId
-			return session
+			session.user.stripeCustomerId = token.stripeCustomerId;
+			session.user.subscribtionRole = token.subscribtionRole;
+			return session;
 		}
 	}
 
