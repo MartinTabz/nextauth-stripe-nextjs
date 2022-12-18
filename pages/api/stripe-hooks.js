@@ -20,24 +20,43 @@ const handler = async (req, res) => {
 		console.log(error);
 		return res.status(400).send(`Webhook error: ${error.message}`);
 	}
+
 	switch(event.type)
 	{
 		case 'customer.subscription.created':
 			const customer = await Users.findOne({ stripeCustomerId: event.data.object.customer });
 			if(event.data.object.plan.id == "price_1MCOI4Ie6OfE8rNR3OClLkk1") {
-			  customer.subscribtionRole = "basic";
+				customer.subscribtionRole = "basic";
 			}
 			else if (event.data.object.plan.id == "price_1MCOIbIe6OfE8rNR2duYdF6J") {
-			  customer.subscribtionRole = "pro";
+				customer.subscribtionRole = "pro";
 			}
 			else if (event.data.object.plan.id == "price_1MCOJIIe6OfE8rNRpd2HTMwR") {
-			  customer.subscribtionRole = "enterprise";
+				customer.subscribtionRole = "enterprise";
 			}
 			else {
-			  customer.subscribtionRole = "free";
+				customer.subscribtionRole = "free";
 			}
-			// Update the document in the collection
 			await Users.updateOne({ stripeCustomerId: event.data.object.customer }, { $set: { subscribtionRole: customer.subscribtionRole }});
+			break;
+		case 'customer.subscription.deleted':
+			await Users.updateOne({ stripeCustomerId: event.data.object.customer }, { $set: { subscribtionRole: 'free' }});
+			break;
+		case 'customer.subscription.updated':
+			const customer1 = await Users.findOne({ stripeCustomerId: event.data.object.customer });
+			if(event.data.object.plan.id == "price_1MCOI4Ie6OfE8rNR3OClLkk1") {
+				customer1.subscribtionRole = "basic";
+			}
+			else if (event.data.object.plan.id == "price_1MCOIbIe6OfE8rNR2duYdF6J") {
+				customer1.subscribtionRole = "pro";
+			}
+			else if (event.data.object.plan.id == "price_1MCOJIIe6OfE8rNRpd2HTMwR") {
+				customer1.subscribtionRole = "enterprise";
+			}
+			else {
+				customer1.subscribtionRole = "free";
+			}
+			await Users.updateOne({ stripeCustomerId: event.data.object.customer }, { $set: { subscribtionRole: customer1.subscribtionRole }});
 			break;
 	}
 	res.send({ success: true });
