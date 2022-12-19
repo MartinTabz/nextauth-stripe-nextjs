@@ -19,8 +19,8 @@ export default async function handler(req, res) {
             quantity: 1,
          },
       ],
-      success_url: 'http://localhost:3000/uspesne-predplaceno',
-      cancel_url: 'http://localhost:3000/platba-zrusena'
+      success_url: process.env.NEXTAUTH_URL + '/uspesne-predplaceno',
+      cancel_url: process.env.NEXTAUTH_URL + '/platba-zrusena'
    });
    if (checkoutsession) {
       res.send({id: checkoutsession.url})
