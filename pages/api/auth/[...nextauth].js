@@ -1,10 +1,13 @@
+import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import { compare } from 'bcryptjs';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import connectMongo from '../../../database/connection';
+import clientPromise from '../../../lib/mongodb';
 import Users from '../../../models/Schema';
 
 export default NextAuth({
+	adapter: MongoDBAdapter(clientPromise),
 	providers: [
 		CredentialsProvider({
 			name: 'Credentials',
@@ -35,24 +38,29 @@ export default NextAuth({
 		}),
 	],
 	session: {
-		jwt: true,
+		strategy: 'jwt',
+		maxAge: 30 * 24 * 60 * 60,
+		updateAge: 24 * 60 * 60,
 	},
+	secret: process.env.NEXTAUTH_SECRET,
 	jwt: {
-		secret: 'Ov/sEuExqNHLzTemACpmnLAe7yBLMaIe+BeI3iyXaeg=',
+		secret: process.env.NEXTAUTH_SECRET,
+		encryption: true,
 	},
 	callbacks: {
-		async jwt({token, user}) {
-			if(user) {
+		jwt: ({ token, user }) => {
+			if (user) {
 				token.stripeCustomerId = user.stripeCustomerId;
 				token.subscribtionRole = user.subscribtionRole;
 			}
 			return token;
 		},
-		async session({session, token}) {
-			session.user.stripeCustomerId = token.stripeCustomerId;
-			session.user.subscribtionRole = token.subscribtionRole;
+		session: ({ session, token }) => {
+			if (token) {
+				session.user.stripeCustomerId = token.stripeCustomerId;
+				session.user.subscribtionRole = token.subscribtionRole;
+			}
 			return session;
-		}
-	}
-
+		},
+	},
 });
